@@ -12,6 +12,20 @@ import MongoStore from 'connect-mongo'
 const app = express();
 
 // const io = new Server(serverhttp)
+app.use(session({
+  store: MongoStore.create({
+       mongoUrl: "mongodb+srv://zacariasnahu:coder@cluster0.qnpopak.mongodb.net/",
+       dbName: 'ecommerce',
+        mongoOptions: {
+           useNewUrlParser: true,
+           useUnifiedTopology: true
+       }
+    }),
+    secret: 'coder',
+    resave: true,
+   saveUninitialized: true
+}))
+
 
 app.use(express.json());
 
@@ -23,46 +37,42 @@ app.set('view engine', 'handlebars')
 app.use("/products", productRouter);
 app.use("/api/carts", carritoRouter);
 app.use('/products',viewsRouter)
+
+const uri = "mongodb+srv://zacariasnahu:coder@cluster0.qnpopak.mongodb.net/";
+//top-level await
+try {
+  await mongoose.connect(uri, {
+    dbName: "ecommerce",
+
+  });
+  console.log("DB connected!");
+  app.listen(8080, () => console.log("server running"));
+//   const response = await userModel.find().explain("executionStats");
+} catch (err) {
+  console.log(err.message);
+}
 //app.use('/',prodhandlebars)
 
-//io.on('connection',async(socket)=>{
-  app.use(session({
-    store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017',
-        dbName: 'clase19',
-        mongoOptions: {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        }
-    }),
-    secret: 'victoriasecret',
-    resave: true,
-    saveUninitialized: true
-}))
-
-const auth = (req, res, next) => {
-  if (req.session?.user && req.session.user.username === 'admin@coderhouse.com') {
-      return next()
-  }
-  return res.status(401).json({ status: 'fail', message: 'Auth error' })
-}
 
 app.get('/', (req, res) => res.json({ status: 'success', message: 'Que la fueza te acompañe!' }))
 
-app.get('/products', auth, (req, res) => {
-  //lectura de los prodyctos de la bd
-  const products = [{ name: 'coca cola'}, { name: 'pepsi' }]
-  res.render('products', {
-      username: req.session.user.username,
-      products: products
-  })
-})
+// app.get('/products',auth, (req, res) => {
+//   //lectura de los prodyctos de la bd
+//   const products = [{ name: 'coca cola'}, { name: 'pepsi' }]
+//   res.render('products', {
+//       username: req.session.user.username,
+//       products: products
+//   })
+// })
+
+
 app.get('/user/profile', (req, res) => {
   const user = {
-      username: 'admin@coderhouse.com',
+      username: 'adminCoder@coder.com',
       ui_preference: 'dark',
       language: 'es',
-      location: 'pe'
+      password: 'coder',
+      location: 'Ar'
   }
   // res.cookie('preference', JSON.stringify(user), {signed: true}).json({ status: 'success', message: 'Cookie creada!' })
   req.session.user = user
@@ -80,17 +90,3 @@ app.get('/user/deletepreference', (req, res) => {
       return res.json({ status: 'success', message: 'Cookie deleteada!' })
   })
 })
-const uri = "mongodb+srv://zacariasnahu:coder@cluster0.qnpopak.mongodb.net/";
-
-//top-level await
-try {
-  await mongoose.connect(uri, {
-    dbName: "ecommerce",
-    
-  });
-  console.log("DB connected!");
-  app.listen(8080, () => console.log("server running"));
-//   const response = await userModel.find().explain("executionStats");
-} catch (err) {
-  console.log(err.message);
-}

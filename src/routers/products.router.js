@@ -1,7 +1,10 @@
 import {Router} from 'express'
 import { productModel } from '../models/products.model.js'
+import {auth} from "../auth/auth.js"
 
 const router = Router()
+
+
 
 router.post('/', async (req, res) => {
 
@@ -62,7 +65,7 @@ export const getProducts = async (req, res) => {
   }
 }
 
-router.get('/', async (req, res) => {
+router.get('/',auth, async (req, res) => {
   try{
   let page = parseInt(req.query.page) || 1
   let limit = parseInt(req.query.limit) || 10
@@ -90,7 +93,7 @@ const result = await productModel.paginate(filterOptions,paginateOptions)
 result.nextLink = result.hasNextPage 
                     ? `/products/?page=${result.nextPage}&limit=${result.limit}`
                     : ''
-
+result.username=req.session.user.username
       res.render('home', result)
   } catch(err) {
       res.status(500).json({ status: 'error', error: err.message })
