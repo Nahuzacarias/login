@@ -6,6 +6,9 @@ import handlebars from "express-handlebars"
 import viewsRouter from "./routers/cart.router.js"
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
+import initializePassport from './config/passport.config.js'
+import myRouter from './routers/session.router.js'
+import passport from 'passport'
 //import prodhandlebars from "./src/routers/handlebars.router.js"
 //import { Server } from 'socket.io';
 
@@ -25,6 +28,16 @@ app.use(session({
     resave: true,
    saveUninitialized: true
 }))
+app.use(session({
+  secret: 'recuerdoamiex',
+  resave: true, saveUninitialized: true
+}))
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.get('/', (req, res) => res.send('HOME'))
+app.use('/api/session', myRouter)
 
 
 app.use(express.json());
